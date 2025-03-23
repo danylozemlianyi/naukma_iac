@@ -1,0 +1,3 @@
+---
+- name: Include replication setup tasks
+  include_tasks: "{{ tasks_from }}.yaml"

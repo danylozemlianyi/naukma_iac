@@ -1,0 +1,3 @@
+---
+postgres_version: 16
+postgres_listen_addresses: '*'

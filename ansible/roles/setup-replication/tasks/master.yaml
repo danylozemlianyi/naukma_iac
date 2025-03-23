@@ -1,0 +1,14 @@
+---
+- name: Create replication user
+  become_user: postgres
+  postgresql_user:
+    name: "{{ replication_user }}"
+    password: "{{ replication_password }}"
+    role_attr_flags: "REPLICATION,LOGIN"
+
+- name: Allow replica to connect for replication
+  lineinfile:
+    path: "/etc/postgresql/{{ postgres_version }}/main/pg_hba.conf"
+    line: "host replication {{ replication_user }} {{ hostvars['db2']['ansible_default_ipv4']['address'] }}/32 md5"
+    insertafter: EOF
+  notify: Restart PostgreSQL

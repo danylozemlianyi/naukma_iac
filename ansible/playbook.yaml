@@ -1,0 +1,20 @@
+---
+- name: Install and configure PostgreSQL 16 on all database servers
+  hosts: db_servers
+  become: true
+  roles:
+    - install-postgres
+
+- name: Configure replication on master
+  hosts: master
+  become: true
+  roles:
+    - role: setup-replication
+      tasks_from: master
+
+- name: Configure replication on replica
+  hosts: replica
+  become: true
+  roles:
+    - role: setup-replication
+      tasks_from: replica

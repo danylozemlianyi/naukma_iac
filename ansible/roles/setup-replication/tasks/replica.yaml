@@ -1,0 +1,36 @@
+---
+- name: Stop PostgreSQL on replica
+  service:
+    name: postgresql
+    state: stopped
+
+- name: Remove old data directory
+  file:
+    path: "{{ postgres_data_dir }}"
+    state: absent
+
+- name: Create fresh data directory
+  file:
+    path: "{{ postgres_data_dir }}"
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: '0700'
+
+- name: Perform base backup from master
+  become_user: postgres
+  command: >
+    pg_basebackup
+      -h {{ hostvars['db1']['ansible_default_ipv4']['address'] }}
+      -p {{ postgres_port }}
+      -U {{ replication_user }}
+      -D {{ postgres_data_dir }}
+      --write-recovery-conf
+  environment:
+    PGPASSWORD: "{{ replication_password }}"
+
+- name: Start PostgreSQL on replica
+  service:
+    name: postgresql
+    state: started
+    enabled: true
